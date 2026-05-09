@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = await getCollection('posts', ({ data }) => !data.draft);
+const sortedPosts = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout
+  title="Travel Blog - Destinations & Guides | Epic Travels Blog"
+  description="Browse our collection of epic travel guides, destination reviews, budget tips, and adventure itineraries from around the world."
+>
+  <div class="py-12">
+    <div class="container-custom">
+      <h1 class="text-4xl md:text-5xl font-bold mb-8">Travel Blog</h1>
+      <p class="text-xl text-gray-600 mb-12 max-w-3xl">
+        Expert travel guides, destination deep-dives, and practical tips for your next adventure.
+      </p>
+
+      {sortedPosts.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {sortedPosts.map((post) => (
+            <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div class="bg-gray-200 h-48 flex items-center justify-center">
+                <span class="text-gray-400">Image</span>
+              </div>
+              <div class="p-6">
+                <div class="text-sm text-gray-500 mb-2">
+                  {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+                <h2 class="text-xl font-bold mb-3">
+                  <a href={`/blog/${post.slug}`} class="hover:text-primary-600">
+                    {post.data.title}
+                  </a>
+                </h2>
+                <p class="text-gray-600 mb-4">
+                  {post.data.description}
+                </p>
+                <div class="flex flex-wrap gap-2 mb-4">
+                  {post.data.tags.slice(0, 3).map((tag) => (
+                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-sm">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <a href={`/blog/${post.slug}`} class="text-primary-600 font-semibold hover:text-primary-700">
+                  Read More &rarr;
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p class="text-gray-500 text-lg">No posts yet. Run the content recovery pipeline to get started.</p>
+      )}
+    </div>
+  </div>
+</BaseLayout>

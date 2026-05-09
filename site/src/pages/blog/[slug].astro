@@ -1,0 +1,89 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StructuredData from '../../components/StructuredData.astro';
+import BreadcrumbSchema from '../../components/BreadcrumbSchema.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+const currentUrl = `https://epictravelsblog.com/blog/${post.slug}/`;
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.date.toISOString()}
+  modifiedTime={post.data.updated?.toISOString()}
+  tags={post.data.tags}
+  image={post.data.featured_image}
+>
+  <StructuredData
+    type="article"
+    data={{
+      title: post.data.title,
+      description: post.data.description,
+      date: post.data.date,
+      updated: post.data.updated,
+      author: post.data.author,
+      tags: post.data.tags,
+      featured_image: post.data.featured_image,
+      url: currentUrl
+    }}
+    slot="head"
+  />
+  <BreadcrumbSchema
+    items={[
+      { name: 'Home', url: '/' },
+      { name: 'Blog', url: '/blog/' },
+      { name: post.data.title, url: currentUrl }
+    ]}
+    slot="head"
+  />
+  <article class="py-12">
+    <div class="container-custom max-w-4xl">
+      <header class="mb-8">
+        <div class="text-sm text-gray-500 mb-2">
+          {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">{post.data.title}</h1>
+        <p class="text-xl text-gray-600">{post.data.description}</p>
+
+        <div class="flex flex-wrap gap-2 mt-4">
+          {post.data.tags.map((tag) => (
+            <span class="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </header>
+
+      {post.data.featured_image && (
+        <div class="bg-gray-200 rounded-lg h-96 flex items-center justify-center mb-8">
+          <span class="text-gray-400">Featured Image: {post.data.featured_image.alt}</span>
+        </div>
+      )}
+
+      <div class="prose prose-lg max-w-none">
+        <Content />
+      </div>
+
+      {post.data.affiliate_disclosure && (
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-8">
+          <p class="text-sm text-gray-700">
+            <strong>Disclosure:</strong> This post contains affiliate links. If you purchase through these links,
+            we may earn a commission at no extra cost to you.
+          </p>
+        </div>
+      )}
+    </div>
+  </article>
+</BaseLayout>

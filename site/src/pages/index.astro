@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import StructuredData from '../components/StructuredData.astro';
+
+const posts = await getCollection('posts', ({ data }) => !data.draft);
+const latestPosts = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
+---
+
+<BaseLayout
+  title="Epic Travels Blog - Your Ultimate Travel Guide"
+  description="Discover epic travel destinations, insider guides, and expert tips for your next adventure around the world."
+>
+  <StructuredData type="organization" slot="head" />
+  <StructuredData type="website" slot="head" />
+
+  <section class="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-20">
+    <div class="container-custom">
+      <div class="max-w-3xl">
+        <h1 class="text-5xl md:text-6xl font-bold mb-6">
+          Epic Travel Destinations Await
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 text-primary-100">
+          From the cheapest trips to Antarctica to hidden gems in South Africa — expert guides and tips for the modern traveler.
+        </p>
+        <a href="/blog" class="btn btn-accent text-lg">
+          Explore Travel Guides
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16">
+    <div class="container-custom">
+      <h2 class="text-4xl font-bold mb-8">Latest Travel Guides</h2>
+      {latestPosts.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {latestPosts.map((post) => (
+            <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+              <div class="bg-gray-200 h-48 flex items-center justify-center">
+                <span class="text-gray-400">Image</span>
+              </div>
+              <div class="p-6">
+                <div class="text-sm text-gray-500 mb-2">
+                  {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+                <h3 class="text-xl font-bold mb-3">
+                  <a href={`/blog/${post.slug}`} class="hover:text-primary-600">
+                    {post.data.title}
+                  </a>
+                </h3>
+                <p class="text-gray-600 mb-4 line-clamp-3">
+                  {post.data.description}
+                </p>
+                <a href={`/blog/${post.slug}`} class="text-primary-600 font-semibold hover:text-primary-700">
+                  Read More &rarr;
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p class="text-gray-500 text-lg">Content coming soon. Run the recovery pipeline to populate posts.</p>
+      )}
+    </div>
+  </section>
+
+  <section class="bg-gray-50 py-16">
+    <div class="container-custom">
+      <h2 class="text-4xl font-bold mb-12 text-center">What We Cover</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">🌍</span>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Destinations</h3>
+          <p class="text-gray-600">
+            In-depth guides to the world's most epic travel destinations, from Antarctica to Jordan.
+          </p>
+        </div>
+        <div class="text-center">
+          <div class="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">💰</span>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Budget Travel</h3>
+          <p class="text-gray-600">
+            Find the cheapest times to visit, budget-friendly itineraries, and money-saving travel hacks.
+          </p>
+        </div>
+        <div class="text-center">
+          <div class="bg-primary-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span class="text-2xl">🧭</span>
+          </div>
+          <h3 class="text-xl font-bold mb-3">Travel Tips</h3>
+          <p class="text-gray-600">
+            Solo travel safety, weekend getaway ideas, and expert advice for every kind of traveler.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

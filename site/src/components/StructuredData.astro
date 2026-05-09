@@ -1,0 +1,85 @@
+---
+interface Props {
+  type: 'article' | 'website' | 'organization';
+  data?: any;
+}
+
+const { type, data } = Astro.props;
+const siteUrl = 'https://epictravelsblog.com';
+
+let schema: any;
+
+if (type === 'organization') {
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Epic Travels Blog",
+    "url": siteUrl,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteUrl}/images/logo.png`
+    },
+    "description": "Epic travel destinations, guides, and tips for adventurers worldwide.",
+    "sameAs": []
+  };
+}
+
+if (type === 'website') {
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Epic Travels Blog",
+    "url": siteUrl,
+    "description": "Epic travel destinations, guides, and tips for adventurers worldwide.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Epic Travels Blog",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${siteUrl}/images/logo.png`
+      }
+    }
+  };
+}
+
+if (type === 'article' && data) {
+  const { title, description, date, updated, author, tags, featured_image, url } = data;
+
+  schema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": title,
+    "description": description,
+    "author": {
+      "@type": "Organization",
+      "name": author || "Epic Travels Blog"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Epic Travels Blog",
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${siteUrl}/images/logo.png`
+      }
+    },
+    "datePublished": date.toISOString(),
+    "dateModified": updated ? updated.toISOString() : date.toISOString(),
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": url
+    },
+    "keywords": tags?.join(', ') || '',
+  };
+
+  if (featured_image?.src) {
+    schema.image = {
+      "@type": "ImageObject",
+      "url": featured_image.src.startsWith('http') ? featured_image.src : `${siteUrl}${featured_image.src}`,
+      "width": featured_image.width || 1200,
+      "height": featured_image.height || 630
+    };
+  }
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />
